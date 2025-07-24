@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Infestation</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      font-family: Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      color: #fff;
+    }
+    .container {
+      text-align: center;
+    }
+    h1 {
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+    }
+    .modes {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+    .modes button {
+      padding: 1rem 2rem;
+      font-size: 1.25rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+    .modes button:hover:not(.locked) {
+      transform: scale(1.05);
+    }
+    #easy {
+      background-color: #4CAF50;
+    }
+    #normal {
+      background-color: #2196F3;
+    }
+    #hard {
+      background-color: #f44336;
+    }
+    #legend {
+      background-color: #555;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+  <audio src="bugmusic.mp3" autoplay loop></audio>
+  <div class="container">
+    <h1>Welcome to Infestation!</h1>
+    <div class="modes">
+      <button id="easy">Easy</button>
+      <button id="normal">Normal</button>
+      <button id="hard">Hard</button>
+      <button id="legend" class="locked" disabled>Legend</button>
+    </div>
+  </div>
+  <script>
+    // TODO: implement mode selection logic
+    document.getElementById('easy').addEventListener('click', () => {
+      // load Easy mode
+    });
+    document.getElementById('normal').addEventListener('click', () => {
+      // load Normal mode
+    });
+    document.getElementById('hard').addEventListener('click', () => {
+      // load Hard mode
+    });
+    // Legend remains locked until unlock conditions are met
+  </script>
+</body>
+</html>
