@@ -8,7 +8,9 @@
     body {
       margin: 0;
       padding: 0;
-      background-color: #000;
+      background: linear-gradient(45deg, #1a0d1a, #2d1b2d, #1a0d1a, #0d1a0d);
+      background-size: 400% 400%;
+      animation: infestationGlow 8s ease-in-out infinite;
       font-family: Arial, sans-serif;
       color: #fff;
       display: flex;
@@ -17,53 +19,195 @@
       height: 100vh;
       overflow: hidden;
     }
+
+    @keyframes infestationGlow {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
     .container {
       text-align: center;
-      max-width: 500px;
+      max-width: 600px;
       padding: 20px;
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 15px;
+      border: 2px solid #4a4a4a;
+      box-shadow: 0 0 30px rgba(139, 69, 19, 0.5);
     }
     h1 {
       font-size: 2.5rem;
-      margin-bottom: 1rem;
+      margin-bottom: 2rem;
+      color: #ff6b35;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+      letter-spacing: 2px;
     }
+    
+    /* 2x2 Grid Layout */
     .modes {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
       justify-content: center;
+      max-width: 400px;
+      margin: 0 auto 2rem auto;
     }
+    
+    .mode-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
     .modes button {
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      min-width: 90px;
+      padding: 1rem 1.5rem;
+      font-size: 1.1rem;
+      width: 100%;
+      min-height: 60px;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       cursor: pointer;
-      transition: transform 0.1s ease;
+      transition: all 0.2s ease;
       color: #fff;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     }
+    
     .modes button:hover:not(.locked) {
       transform: scale(1.05);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
     }
+    
     #easy {
-      background-color: #4CAF50;
+      background: linear-gradient(135deg, #4CAF50, #66BB6A);
+      border: 2px solid #2E7D32;
     }
+    #easy:hover:not(.locked) {
+      background: linear-gradient(135deg, #66BB6A, #4CAF50);
+      box-shadow: 0 0 20px rgba(76, 175, 80, 0.6);
+    }
+    
     #normal {
-      background-color: #2196F3;
+      background: linear-gradient(135deg, #2196F3, #42A5F5);
+      border: 2px solid #1565C0;
     }
+    #normal:hover:not(.locked) {
+      background: linear-gradient(135deg, #42A5F5, #2196F3);
+      box-shadow: 0 0 20px rgba(33, 150, 243, 0.6);
+    }
+    
     #hard {
-      background-color: #f44336;
+      background: linear-gradient(135deg, #f44336, #EF5350);
+      border: 2px solid #C62828;
     }
+    #hard:hover:not(.locked) {
+      background: linear-gradient(135deg, #EF5350, #f44336);
+      box-shadow: 0 0 20px rgba(244, 67, 54, 0.6);
+    }
+    
     #legend {
-      background-color: #555;
+      background: linear-gradient(135deg, #424242, #616161);
+      border: 2px solid #212121;
       cursor: not-allowed;
       opacity: 0.6;
     }
 
-    /* NEW: Last-score display */
-    #scoreboard {
-      margin-top: 1.5rem;
-      font-size: 1.25rem;
+    /* Score displays under each button */
+    .score-info {
+      font-size: 0.9rem;
+      color: #cccccc;
+      min-height: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    }
+    
+    .last-score {
+      color: #b8e6b8;
+    }
+    
+    .best-score {
+      color: #ffd700;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9);
+    }
+
+    /* Screen management */
+    .screen {
+      display: none;
+      width: 100%;
+    }
+    .screen.active {
+      display: block;
+    }
+
+    /* Game screen styles */
+    #game-container {
+      text-align: center;
+      max-width: 800px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 15px;
+      border: 2px solid #4a4a4a;
+    }
+
+    #game-area {
+      width: 600px;
+      height: 400px;
+      background: linear-gradient(135deg, #f0f8f0, #e8f5e8);
+      border: 3px solid #4CAF50;
+      border-radius: 10px;
+      position: relative;
+      margin: 20px auto;
+      overflow: hidden;
+      box-shadow: inset 0 0 20px rgba(76, 175, 80, 0.3);
+    }
+
+    .bug {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      background-color: #ff0000;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.1s ease;
+    }
+
+    .bug:hover {
+      transform: scale(1.2);
+    }
+
+    #game-ui {
+      display: flex;
+      justify-content: space-around;
+      margin: 20px 0;
+      font-size: 1.2rem;
+    }
+
+    #medal-panel {
+      font-size: 1.5rem;
+      margin: 10px 0;
+      min-height: 30px;
+    }
+
+    #back-button {
+      background: linear-gradient(135deg, #666, #888);
+      color: #fff;
+      border: 2px solid #444;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.2s ease;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    }
+
+    #back-button:hover {
+      background: linear-gradient(135deg, #888, #aaa);
+      box-shadow: 0 0 15px rgba(136, 136, 136, 0.5);
+      transform: translateY(-2px);
     }
 
     audio {
@@ -73,40 +217,141 @@
 </head>
 <body>
   <audio src="bugmusic.mp3" autoplay loop></audio>
-  <div class="container">
-    <h1>Welcome to Infestation!</h1>
-    <div class="modes">
-      <button id="easy">Easy</button>
-      <button id="normal">Normal</button>
-      <button id="hard">Hard</button>
-      <button id="legend" class="locked" disabled>Legend</button>
+  
+  <!-- Menu Screen -->
+  <div id="menu-screen" class="screen active">
+    <div class="container">
+      <h1>Welcome to Infestation!</h1>
+      <div class="modes">
+        <div class="mode-card">
+          <button id="easy">Easy</button>
+          <div class="score-info">
+            <div class="last-score">Last: <span id="lastScore-easy">0</span></div>
+            <div class="best-score">Best: <span id="bestScore-easy">0</span></div>
+          </div>
+        </div>
+        
+        <div class="mode-card">
+          <button id="normal">Normal</button>
+          <div class="score-info">
+            <div class="last-score">Last: <span id="lastScore-normal">0</span></div>
+            <div class="best-score">Best: <span id="bestScore-normal">0</span></div>
+          </div>
+        </div>
+        
+        <div class="mode-card">
+          <button id="hard">Hard</button>
+          <div class="score-info">
+            <div class="last-score">Last: <span id="lastScore-hard">0</span></div>
+            <div class="best-score">Best: <span id="bestScore-hard">0</span></div>
+          </div>
+        </div>
+        
+        <div class="mode-card">
+          <button id="legend" class="locked" disabled>Legend</button>
+          <div class="score-info">
+            <div class="last-score">Last: <span id="lastScore-legend">???</span></div>
+            <div class="best-score">Best: <span id="bestScore-legend">???</span></div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <!-- NEW: Show the last game’s score -->
-    <div id="scoreboard">
-      Last Score: <span id="lastScore">0</span>
+  <!-- Game Screen -->
+  <div id="infestation" class="screen">
+    <div id="game-container">
+      <h1>Infestation - Easy Mode</h1>
+      
+      <div id="game-ui">
+        <div id="score">Score: 0</div>
+        <div id="misses">Misses: 0</div>
+      </div>
+      
+      <div id="medal-panel"></div>
+      
+      <div id="game-area"></div>
+      
+      <button id="back-button">Back to Menu</button>
     </div>
   </div>
 
   <script type="module">
     import { startEasyMode } from './infestation-easy.js';
+    import { startNormalMode } from './infestation-normal.js';
 
-    // Populate last score
-    const stored = localStorage.getItem('lastScore');
-    document.getElementById('lastScore').textContent = stored !== null ? stored : 0;
+    // Function to get score from localStorage with fallback
+    function getStoredScore(key, fallback = 0) {
+      const stored = localStorage.getItem(key);
+      return stored ? parseInt(stored) : fallback;
+    }
 
-    // Easy mode now flips to the infestation screen and starts Easy Mode
+    // Function to update all score displays
+    function updateScoreDisplays() {
+      // Easy mode scores
+      document.getElementById('lastScore-easy').textContent = getStoredScore('lastScore-Easy');
+      document.getElementById('bestScore-easy').textContent = getStoredScore('bestScore-Easy');
+      
+      // Normal mode scores
+      document.getElementById('lastScore-normal').textContent = getStoredScore('lastScore-Normal');
+      document.getElementById('bestScore-normal').textContent = getStoredScore('bestScore-Normal');
+      
+      // Hard mode scores
+      document.getElementById('lastScore-hard').textContent = getStoredScore('lastScore-Hard');
+      document.getElementById('bestScore-hard').textContent = getStoredScore('bestScore-Hard');
+      
+      // Legend mode (locked)
+      document.getElementById('lastScore-legend').textContent = '???';
+      document.getElementById('bestScore-legend').textContent = '???';
+    }
+
+    // Screen switching function
+    function toScreen(screenName) {
+      document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+      });
+      
+      if (screenName === 'menu') {
+        document.getElementById('menu-screen').classList.add('active');
+        // Update scores when returning to menu
+        updateScoreDisplays();
+      } else if (screenName === 'infestation') {
+        document.getElementById('infestation').classList.add('active');
+      }
+    }
+
+    // Make toScreen available globally
+    window.toScreen = toScreen;
+
+    // Initialize score displays on page load
+    updateScoreDisplays();
+
+    // Easy mode button
     document.getElementById('easy').addEventListener('click', () => {
       toScreen('infestation');
       startEasyMode();
     });
 
+    // Normal mode button
     document.getElementById('normal').addEventListener('click', () => {
-      window.location.href = 'infestation-normal.html';
+      toScreen('infestation');
+      startNormalMode();
     });
+    
+    // Hard mode button (placeholder functionality)
     document.getElementById('hard').addEventListener('click', () => {
-      window.location.href = 'infestation-hard.html';
+      alert('Hard mode not implemented yet!');
+      // toScreen('infestation');
+      // startHardMode();
     });
+
+    // Back button
+    document.getElementById('back-button').addEventListener('click', () => {
+      toScreen('menu');
+    });
+
+    // Listen for storage changes (in case multiple tabs are open)
+    window.addEventListener('storage', updateScoreDisplays);
   </script>
 </body>
 </html>
