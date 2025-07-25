@@ -335,14 +335,21 @@
       
       if (screenName === 'menu') {
         document.getElementById('menu-screen').classList.add('active');
-        // Clean up game area styling when returning to menu
+        // Clean up game area completely when returning to menu
         const gameArea = document.getElementById('game-area');
         gameArea.classList.remove('normal', 'hard');
         gameArea.innerHTML = ''; // Clear any remaining bugs
+        // Reset all game displays to prevent score contamination
+        document.getElementById('score').textContent = 'Score: 0';
+        document.getElementById('misses').textContent = 'Misses: 0';
+        document.getElementById('medal-panel').textContent = '';
         // Update scores when returning to menu
         updateScoreDisplays();
       } else if (screenName === 'infestation') {
         document.getElementById('infestation').classList.add('active');
+        // EXTRA SAFETY: Clear game area when entering game screen too
+        const gameArea = document.getElementById('game-area');
+        gameArea.innerHTML = '';
       }
     }
 
