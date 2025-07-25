@@ -34,6 +34,9 @@ export function startEasyMode() {
   gameTitle.textContent = 'Infestation - Easy Mode';
   gameArea.classList.remove('normal', 'hard');
 
+  // Set global game mode to prevent cross-contamination
+  window.currentGameMode = 'easy';
+
   let score         = 0;
   let misses        = 0;
   let spawnInterval = 2000;
@@ -53,7 +56,7 @@ export function startEasyMode() {
 
     gameArea.appendChild(bug);
 
-    const bugSpeed = 6000;
+    const bugSpeed = 4000;
     bug.animate(
       [
         { transform: 'translateX(0)' },
@@ -67,7 +70,7 @@ export function startEasyMode() {
 
     let squished = false;
     bug.addEventListener('click', () => {
-      if (!squished && !gameEnded) {
+      if (!squished && !gameEnded && window.currentGameMode === 'easy') {
         squished = true;
         score += 10;
         scoreDisplay.textContent = `Score: ${score}`;
@@ -76,7 +79,7 @@ export function startEasyMode() {
     });
 
     setTimeout(() => {
-      if (!squished && gameArea.contains(bug) && !gameEnded) {
+      if (!squished && gameArea.contains(bug) && !gameEnded && window.currentGameMode === 'easy') {
         misses += 1;
         missDisplay.textContent = `Misses: ${misses}`;
         bug.remove();
