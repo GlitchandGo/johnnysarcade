@@ -323,12 +323,22 @@
 
     // Screen switching function
     function toScreen(screenName) {
+      // CRITICAL: Stop any running game when switching screens
+      if (window.currentGameLoop) {
+        clearInterval(window.currentGameLoop);
+        window.currentGameLoop = null;
+      }
+      
       document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
       });
       
       if (screenName === 'menu') {
         document.getElementById('menu-screen').classList.add('active');
+        // Clean up game area styling when returning to menu
+        const gameArea = document.getElementById('game-area');
+        gameArea.classList.remove('normal', 'hard');
+        gameArea.innerHTML = ''; // Clear any remaining bugs
         // Update scores when returning to menu
         updateScoreDisplays();
       } else if (screenName === 'infestation') {
