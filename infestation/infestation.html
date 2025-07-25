@@ -59,6 +59,13 @@
       cursor: not-allowed;
       opacity: 0.6;
     }
+
+    /* NEW: Last-score display */
+    #scoreboard {
+      margin-top: 1.5rem;
+      font-size: 1.25rem;
+    }
+
     audio {
       display: none;
     }
@@ -74,16 +81,26 @@
       <button id="hard">Hard</button>
       <button id="legend" class="locked" disabled>Legend</button>
     </div>
+
+    <!-- NEW: Show the last game’s score -->
+    <div id="scoreboard">
+      Last Score: <span id="lastScore">0</span>
+    </div>
   </div>
+
   <script>
+    // Populate last score from localStorage (set this in your endGame() later)
+    const stored = localStorage.getItem('lastScore');
+    document.getElementById('lastScore').textContent = stored !== null ? stored : 0;
+
     document.getElementById('easy').addEventListener('click', () => {
-      // load Easy mode
+      window.location.href = 'infestation.html';
     });
     document.getElementById('normal').addEventListener('click', () => {
-      // load Normal mode
+      window.location.href = 'infestation-normal.html';
     });
     document.getElementById('hard').addEventListener('click', () => {
-      // load Hard mode
+      window.location.href = 'infestation-hard.html';
     });
   </script>
 </body>
