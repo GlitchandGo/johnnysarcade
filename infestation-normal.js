@@ -40,6 +40,9 @@ export function startNormalMode() {
   gameTitle.textContent = 'Infestation - Normal Mode';
   gameArea.classList.add('normal');
 
+  // Set global game mode to prevent cross-contamination
+  window.currentGameMode = 'normal';
+
   let score         = 0;
   let misses        = 0;
   let spawnInterval = 2000;
@@ -59,7 +62,7 @@ export function startNormalMode() {
 
     gameArea.appendChild(bug);
 
-    const bugSpeed = 4000; // 1.5x faster than easy mode (4000)
+    const bugSpeed = 6000; // 1.5x faster than easy mode (4000)
     bug.animate(
       [
         { transform: 'translateX(0)' },
@@ -73,7 +76,7 @@ export function startNormalMode() {
 
     let squished = false;
     bug.addEventListener('click', () => {
-      if (!squished && !gameEnded) {
+      if (!squished && !gameEnded && window.currentGameMode === 'normal') {
         squished = true;
         score += 10;
         scoreDisplay.textContent = `Score: ${score}`;
@@ -82,7 +85,7 @@ export function startNormalMode() {
     });
 
     setTimeout(() => {
-      if (!squished && gameArea.contains(bug) && !gameEnded) {
+      if (!squished && gameArea.contains(bug) && !gameEnded && window.currentGameMode === 'normal') {
         misses += 1;
         missDisplay.textContent = `Misses: ${misses}`;
         bug.remove();
