@@ -88,14 +88,19 @@
     </div>
   </div>
 
-  <script>
-    // Populate last score from localStorage (set this in your endGame() later)
+  <script type="module">
+    import { startEasyMode } from './infestation-easy.js';
+
+    // Populate last score
     const stored = localStorage.getItem('lastScore');
     document.getElementById('lastScore').textContent = stored !== null ? stored : 0;
 
+    // Easy mode now flips to the infestation screen and starts Easy Mode
     document.getElementById('easy').addEventListener('click', () => {
-      window.location.href = 'infestation.html';
+      toScreen('infestation');
+      startEasyMode();
     });
+
     document.getElementById('normal').addEventListener('click', () => {
       window.location.href = 'infestation-normal.html';
     });
