@@ -57,7 +57,7 @@ export function startEasyMode() {
 
     gameArea.appendChild(bug);
 
-    const bugSpeed = 4000;
+    const bugSpeed = 6000;
     bug.animate(
       [
         { transform: 'translateX(0)' },
