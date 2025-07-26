@@ -1,16 +1,16 @@
-// infestation-easy.js
+// infestation-normal.js
 
-// Inject CSS rule for green easy-mode bugs
-(function injectEasyModeStyles() {
+// Inject CSS rule for blue normal-mode bugs
+(function injectNormalModeStyles() {
   const style = document.createElement('style');
   style.textContent = `
-.bug.easy {
-  background-color: #00ff00;
+.bug.normal {
+  background-color: #0066ff;
   width: 20px;
   height: 20px;
 }
 
-.bug.easy::before {
+.bug.normal::before {
   content: '';
   position: absolute;
   top: -15px;
@@ -19,23 +19,29 @@
   bottom: -15px;
   cursor: pointer;
 }
+
+#game-area.normal {
+  background: linear-gradient(135deg, #f0f4ff, #e8f0ff);
+  border: 3px solid #2196F3;
+  box-shadow: inset 0 0 20px rgba(33, 150, 243, 0.3);
+}
 `;
   document.head.appendChild(style);
 })();
 
-export function startEasyMode() {
+export function startNormalMode() {
   const gameArea     = document.getElementById('game-area');
   const scoreDisplay = document.getElementById('score');
   const missDisplay  = document.getElementById('misses');
   const medalPanel   = document.getElementById('medal-panel');
   const gameTitle    = document.querySelector('#game-container h1');
 
-  // Update title and reset game area styling
-  gameTitle.textContent = 'Infestation - Easy Mode';
-  gameArea.classList.remove('normal', 'hard');
+  // Update title and game area styling
+  gameTitle.textContent = 'Infestation - Normal Mode';
+  gameArea.classList.add('normal');
 
   // Set global game mode to prevent cross-contamination
-  window.currentGameMode = 'easy';
+  window.currentGameMode = 'normal';
 
   let score         = 0;
   let misses        = 0;
@@ -45,18 +51,19 @@ export function startEasyMode() {
   let lastAdjust    = Date.now();
   let spawnLoop;
   let gameEnded     = false;  // Add flag to prevent multiple game over triggers
+  let activeBugTimers = [];   // Track all active bug timers for cleanup
 
   function spawnBug() {
     if (gameEnded) return;  // Don't spawn new bugs if game has ended
     
     const bug = document.createElement('div');
-    bug.className = 'bug easy';
+    bug.className = 'bug normal';
     bug.style.top  = `${Math.random() * 80 + 10}%`;
     bug.style.left = `-50px`;
 
     gameArea.appendChild(bug);
 
-    const bugSpeed = 6000;
+    const bugSpeed = 6000; // 1.5x faster than easy mode (4000)
     bug.animate(
       [
         { transform: 'translateX(0)' },
@@ -70,7 +77,7 @@ export function startEasyMode() {
 
     let squished = false;
     bug.addEventListener('click', () => {
-      if (!squished && !gameEnded && window.currentGameMode === 'easy') {
+      if (!squished && !gameEnded && window.currentGameMode === 'normal') {
         squished = true;
         score += 10;
         scoreDisplay.textContent = `Score: ${score}`;
@@ -78,14 +85,17 @@ export function startEasyMode() {
       }
     });
 
-    setTimeout(() => {
-      if (!squished && gameArea.contains(bug) && !gameEnded && window.currentGameMode === 'easy') {
+    const bugTimer = setTimeout(() => {
+      if (!squished && gameArea.contains(bug) && !gameEnded && window.currentGameMode === 'normal') {
         misses += 1;
         missDisplay.textContent = `Misses: ${misses}`;
         bug.remove();
         if (misses >= 10) endGame();
       }
     }, bugSpeed);
+    
+    // Track this timer so we can clear it if needed
+    activeBugTimers.push(bugTimer);
   }
 
   function adjustSpawnRate() {
@@ -93,8 +103,8 @@ export function startEasyMode() {
     
     const now = Date.now();
     if (now - lastAdjust >= adjustRate && spawnInterval > minInterval) {
-      // Nerf: 1.4x speed increase instead of 2x, rounded to 2nd decimal
-      const newInterval = Math.round((spawnInterval / 1.4) * 100) / 100;
+      // 1.6x speed increase, rounded to 2nd decimal
+      const newInterval = Math.round((spawnInterval / 1.6) * 100) / 100;
       spawnInterval = Math.max(newInterval, minInterval);
       lastAdjust = now;
       clearInterval(spawnLoop);
@@ -113,7 +123,7 @@ export function startEasyMode() {
   }
 
   function saveScore() {
-    const mode = 'Easy';
+    const mode = 'Normal';
     
     // Save last score
     localStorage.setItem(`lastScore-${mode}`, score);
@@ -134,8 +144,16 @@ export function startEasyMode() {
     gameEnded = true;
     clearInterval(spawnLoop);
     window.currentGameLoop = null; // Clear global reference
+    
+    // Clear all active bug timers
+    activeBugTimers.forEach(timer => clearTimeout(timer));
+    activeBugTimers = [];
+    
     medalCheck();
     saveScore();
+    
+    // Clean up styling when game ends
+    gameArea.classList.remove('normal');
     
     // Use toScreen function instead of redirect to stay on same page
     setTimeout(() => {
@@ -163,13 +181,19 @@ export function startEasyMode() {
     clearInterval(window.currentGameLoop);
   }
   
+  // Clear any active bug timers from previous games
+  if (window.activeBugTimers) {
+    window.activeBugTimers.forEach(timer => clearTimeout(timer));
+  }
+  window.activeBugTimers = activeBugTimers; // Store globally for cleanup
+  
   // Reset displays
   scoreDisplay.textContent = 'Score: 0';
   missDisplay.textContent = 'Misses: 0';
   medalPanel.textContent = '';
   
-  // Remove any mode-specific styling
-  gameArea.classList.remove('normal', 'hard');
+  // Remove any previous mode styling and add normal styling
+  gameArea.classList.remove('easy', 'hard');
   
   // Start the endless spawn loop and store globally for cleanup
   spawnLoop = setInterval(gameTick, spawnInterval);
