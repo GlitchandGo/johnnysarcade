@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Johnny Says</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #4CAF50;
+            transition: background-color 0.5s ease;
+            min-height: 100vh;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+
+        .johnny-image {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .score-container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 400px;
+            margin: 0 auto 30px auto;
+            font-size: 1.2rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        .game-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 300px;
+            margin: 0 auto 30px auto;
+        }
+
+        .color-button {
+            width: 120px;
+            height: 120px;
+            border: none;
+            border-radius: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+        }
+
+        .color-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+
+        .color-button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .red { background-color: #ff4444; color: white; }
+        .blue { background-color: #4444ff; color: white; }
+        .yellow { background-color: #ffff44; color: black; }
+        .green { background-color: #44ff44; color: black; }
+
+        .start-button {
+            background-color: white;
+            color: #333;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: transform 0.1s ease;
+        }
+
+        .start-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .game-message {
+            color: white;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin: 20px 0;
+            min-height: 30px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="title" id="title">Johnny Says</div>
+    
+    <img src="johnny.png" alt="Little Johnny" class="johnny-image">
+    
+    <div class="score-container">
+        <div>Score: <span id="current-score">0</span></div>
+        <div>Best: <span id="best-score">0</span></div>
+    </div>
+    
+    <div class="game-buttons hidden" id="game-buttons">
+        <button class="color-button red" data-color="red">RED</button>
+        <button class="color-button blue" data-color="blue">BLUE</button>
+        <button class="color-button yellow" data-color="yellow">YELLOW</button>
+        <button class="color-button green" data-color="green">GREEN</button>
+    </div>
+    
+    <button class="start-button" id="start-button">Start Game</button>
+    
+    <div class="game-message" id="game-message"></div>
+
+    <audio id="red-audio" preload="auto">
+        <source src="red.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="blue-audio" preload="auto">
+        <source src="blue.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="yellow-audio" preload="auto">
+        <source src="yellow.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="green-audio" preload="auto">
+        <source src="green.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        class JohnnySaysGame {
+            constructor() {
+                this.sequence = [];
+                this.playerSequence = [];
+                this.currentScore = 0;
+                this.bestScore = this.loadBestScore();
+                this.isPlaying = false;
+                this.isPlayerTurn = false;
+                
+                this.colors = ['red', 'blue', 'yellow', 'green'];
+                this.backgroundColors = {
+                    0: '#4CAF50',   // Green
+                    5: '#FFD700',   // Yellow
+                    10: '#4169E1',  // Blue
+                    15: '#DC143C'   // Red
+                };
+                
+                this.medals = {
+                    8: '🥉',
+                    12: '🥈', 
+                    16: '🥇',
+                    20: '🏅',
+                    25: '🏆'
+                };
+                
+                this.initializeElements();
+                this.updateDisplay();
+                this.setupEventListeners();
+            }
+            
+            initializeElements() {
+                this.titleEl = document.getElementById('title');
+                this.currentScoreEl = document.getElementById('current-score');
+                this.bestScoreEl = document.getElementById('best-score');
+                this.gameButtonsEl = document.getElementById('game-buttons');
+                this.startButtonEl = document.getElementById('start-button');
+                this.gameMessageEl = document.getElementById('game-message');
+                this.colorButtons = document.querySelectorAll('.color-button');
+            }
+            
+            setupEventListeners() {
+                this.startButtonEl.addEventListener('click', () => this.startGame());
+                
+                this.colorButtons.forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        if (this.isPlayerTurn) {
+                            this.handlePlayerInput(e.target.dataset.color);
+                        }
+                    });
+                });
+            }
+            
+            loadBestScore() {
+                return parseInt(localStorage.getItem('johnnySaysBestScore') || '0');
+            }
+            
+            saveBestScore() {
+                localStorage.setItem('johnnySaysBestScore', this.bestScore.toString());
+            }
+            
+            getMedal(score) {
+                const thresholds = [25, 20, 16, 12, 8];
+                for (let threshold of thresholds) {
+                    if (score >= threshold) {
+                        return this.medals[threshold];
+                    }
+                }
+                return '';
+            }
+            
+            updateDisplay() {
+                this.currentScoreEl.textContent = this.currentScore;
+                this.bestScoreEl.textContent = this.bestScore;
+                
+                const medal = this.getMedal(this.bestScore);
+                this.titleEl.textContent = `Johnny Says${medal}`;
+                
+                // Update background color based on score
+                let bgColor = this.backgroundColors[0];
+                for (let threshold of [15, 10, 5, 0]) {
+                    if (this.currentScore >= threshold) {
+                        bgColor = this.backgroundColors[threshold];
+                        break;
+                    }
+                }
+                document.body.style.backgroundColor = bgColor;
+            }
+            
+            startGame() {
+                this.sequence = [];
+                this.playerSequence = [];
+                this.currentScore = 0;
+                this.isPlaying = true;
+                
+                this.startButtonEl.classList.add('hidden');
+                this.gameButtonsEl.classList.remove('hidden');
+                this.gameMessageEl.textContent = '';
+                
+                this.updateDisplay();
+                this.nextRound();
+            }
+            
+            nextRound() {
+                this.playerSequence = [];
+                this.isPlayerTurn = false;
+                
+                // Add new color to sequence
+                const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
+                this.sequence.push(randomColor);
+                
+                this.gameMessageEl.textContent = 'Listen carefully...';
+                
+                // Play the sequence
+                this.playSequence();
+            }
+            
+            async playSequence() {
+                for (let i = 0; i < this.sequence.length; i++) {
+                    await this.wait(200); // 0.2 second pause
+                    this.playAudio(this.sequence[i]);
+                }
+                
+                // After sequence is done, player can start
+                await this.wait(500);
+                this.isPlayerTurn = true;
+                this.gameMessageEl.textContent = 'Your turn!';
+            }
+            
+            playAudio(color) {
+                const audio = document.getElementById(`${color}-audio`);
+                if (audio) {
+                    audio.currentTime = 0;
+                    audio.play().catch(e => console.log('Audio play failed:', e));
+                }
+            }
+            
+            wait(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+            
+            handlePlayerInput(color) {
+                if (!this.isPlayerTurn) return;
+                
+                this.playerSequence.push(color);
+                this.playAudio(color);
+                
+                // Check if current input is correct
+                const currentIndex = this.playerSequence.length - 1;
+                if (this.playerSequence[currentIndex] !== this.sequence[currentIndex]) {
+                    this.gameOver();
+                    return;
+                }
+                
+                // Check if player completed the sequence
+                if (this.playerSequence.length === this.sequence.length) {
+                    this.currentScore++;
+                    this.updateDisplay();
+                    
+                    if (this.currentScore > this.bestScore) {
+                        this.bestScore = this.currentScore;
+                        this.saveBestScore();
+                        this.updateDisplay();
+                    }
+                    
+                    this.isPlayerTurn = false;
+                    this.gameMessageEl.textContent = `Correct! Score: ${this.currentScore}`;
+                    
+                    setTimeout(() => {
+                        this.nextRound();
+                    }, 1500);
+                }
+            }
+            
+            gameOver() {
+                this.isPlaying = false;
+                this.isPlayerTurn = false;
+                
+                this.gameMessageEl.textContent = `Game Over! Final Score: ${this.currentScore}`;
+                this.gameButtonsEl.classList.add('hidden');
+                this.startButtonEl.classList.remove('hidden');
+                this.startButtonEl.textContent = 'Play Again';
+            }
+        }
+        
+        // Start the game when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            new JohnnySaysGame();
+        });
+    </script>
+</body>
+</html>
