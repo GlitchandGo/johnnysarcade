@@ -1,16 +1,16 @@
-// infestation-normal.js
+// infestation-easy.js
 
-// Inject CSS rule for blue normal-mode bugs
-(function injectNormalModeStyles() {
+// Inject CSS rule for green easy-mode bugs
+(function injectEasyModeStyles() {
   const style = document.createElement('style');
   style.textContent = `
-.bug.normal {
-  background-color: #0066ff;
+.bug.easy {
+  background-color: #00ff00;
   width: 20px;
   height: 20px;
 }
 
-.bug.normal::before {
+.bug.easy::before {
   content: '';
   position: absolute;
   top: -15px;
@@ -19,29 +19,23 @@
   bottom: -15px;
   cursor: pointer;
 }
-
-#game-area.normal {
-  background: linear-gradient(135deg, #f0f4ff, #e8f0ff);
-  border: 3px solid #2196F3;
-  box-shadow: inset 0 0 20px rgba(33, 150, 243, 0.3);
-}
 `;
   document.head.appendChild(style);
 })();
 
-export function startNormalMode() {
+export function startEasyMode() {
   const gameArea     = document.getElementById('game-area');
   const scoreDisplay = document.getElementById('score');
   const missDisplay  = document.getElementById('misses');
   const medalPanel   = document.getElementById('medal-panel');
   const gameTitle    = document.querySelector('#game-container h1');
 
-  // Update title and game area styling
-  gameTitle.textContent = 'Infestation - Normal Mode';
-  gameArea.classList.add('normal');
+  // Update title and reset game area styling
+  gameTitle.textContent = 'Infestation - Easy Mode';
+  gameArea.classList.remove('normal', 'hard');
 
   // Set global game mode to prevent cross-contamination
-  window.currentGameMode = 'normal';
+  window.currentGameMode = 'easy';
 
   let score         = 0;
   let misses        = 0;
@@ -57,13 +51,13 @@ export function startNormalMode() {
     if (gameEnded) return;  // Don't spawn new bugs if game has ended
     
     const bug = document.createElement('div');
-    bug.className = 'bug normal';
+    bug.className = 'bug easy';
     bug.style.top  = `${Math.random() * 80 + 10}%`;
     bug.style.left = `-50px`;
 
     gameArea.appendChild(bug);
 
-    const bugSpeed = 6000; // 1.5x faster than easy mode (4000)
+    const bugSpeed = 4000;
     bug.animate(
       [
         { transform: 'translateX(0)' },
@@ -77,7 +71,7 @@ export function startNormalMode() {
 
     let squished = false;
     bug.addEventListener('click', () => {
-      if (!squished && !gameEnded && window.currentGameMode === 'normal') {
+      if (!squished && !gameEnded && window.currentGameMode === 'easy') {
         squished = true;
         score += 10;
         scoreDisplay.textContent = `Score: ${score}`;
@@ -86,7 +80,7 @@ export function startNormalMode() {
     });
 
     const bugTimer = setTimeout(() => {
-      if (!squished && gameArea.contains(bug) && !gameEnded && window.currentGameMode === 'normal') {
+      if (!squished && gameArea.contains(bug) && !gameEnded && window.currentGameMode === 'easy') {
         misses += 1;
         missDisplay.textContent = `Misses: ${misses}`;
         bug.remove();
@@ -103,8 +97,8 @@ export function startNormalMode() {
     
     const now = Date.now();
     if (now - lastAdjust >= adjustRate && spawnInterval > minInterval) {
-      // 1.6x speed increase, rounded to 2nd decimal
-      const newInterval = Math.round((spawnInterval / 1.6) * 100) / 100;
+      // Nerf: 1.4x speed increase instead of 2x, rounded to 2nd decimal
+      const newInterval = Math.round((spawnInterval / 1.4) * 100) / 100;
       spawnInterval = Math.max(newInterval, minInterval);
       lastAdjust = now;
       clearInterval(spawnLoop);
@@ -123,7 +117,7 @@ export function startNormalMode() {
   }
 
   function saveScore() {
-    const mode = 'Normal';
+    const mode = 'Easy';
     
     // Save last score
     localStorage.setItem(`lastScore-${mode}`, score);
@@ -151,9 +145,6 @@ export function startNormalMode() {
     
     medalCheck();
     saveScore();
-    
-    // Clean up styling when game ends
-    gameArea.classList.remove('normal');
     
     // Use toScreen function instead of redirect to stay on same page
     setTimeout(() => {
@@ -192,8 +183,8 @@ export function startNormalMode() {
   missDisplay.textContent = 'Misses: 0';
   medalPanel.textContent = '';
   
-  // Remove any previous mode styling and add normal styling
-  gameArea.classList.remove('easy', 'hard');
+  // Remove any mode-specific styling
+  gameArea.classList.remove('normal', 'hard');
   
   // Start the endless spawn loop and store globally for cleanup
   spawnLoop = setInterval(gameTick, spawnInterval);
