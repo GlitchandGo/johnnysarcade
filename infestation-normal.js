@@ -51,6 +51,7 @@ export function startNormalMode() {
   let lastAdjust    = Date.now();
   let spawnLoop;
   let gameEnded     = false;  // Add flag to prevent multiple game over triggers
+  let activeBugTimers = [];   // Track all active bug timers for cleanup
 
   function spawnBug() {
     if (gameEnded) return;  // Don't spawn new bugs if game has ended
@@ -62,7 +63,7 @@ export function startNormalMode() {
 
     gameArea.appendChild(bug);
 
-    const bugSpeed = 4000; // 1.5x faster than easy mode (4000)
+    const bugSpeed = 6000; // 1.5x faster than easy mode (4000)
     bug.animate(
       [
         { transform: 'translateX(0)' },
@@ -84,7 +85,7 @@ export function startNormalMode() {
       }
     });
 
-    setTimeout(() => {
+    const bugTimer = setTimeout(() => {
       if (!squished && gameArea.contains(bug) && !gameEnded && window.currentGameMode === 'normal') {
         misses += 1;
         missDisplay.textContent = `Misses: ${misses}`;
@@ -92,6 +93,9 @@ export function startNormalMode() {
         if (misses >= 10) endGame();
       }
     }, bugSpeed);
+    
+    // Track this timer so we can clear it if needed
+    activeBugTimers.push(bugTimer);
   }
 
   function adjustSpawnRate() {
@@ -140,6 +144,11 @@ export function startNormalMode() {
     gameEnded = true;
     clearInterval(spawnLoop);
     window.currentGameLoop = null; // Clear global reference
+    
+    // Clear all active bug timers
+    activeBugTimers.forEach(timer => clearTimeout(timer));
+    activeBugTimers = [];
+    
     medalCheck();
     saveScore();
     
@@ -171,6 +180,12 @@ export function startNormalMode() {
   if (window.currentGameLoop) {
     clearInterval(window.currentGameLoop);
   }
+  
+  // Clear any active bug timers from previous games
+  if (window.activeBugTimers) {
+    window.activeBugTimers.forEach(timer => clearTimeout(timer));
+  }
+  window.activeBugTimers = activeBugTimers; // Store globally for cleanup
   
   // Reset displays
   scoreDisplay.textContent = 'Score: 0';
