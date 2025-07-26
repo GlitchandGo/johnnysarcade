@@ -62,7 +62,7 @@ export function startNormalMode() {
 
     gameArea.appendChild(bug);
 
-    const bugSpeed = 6000; // 1.5x faster than easy mode (4000)
+    const bugSpeed = 4000; // 1.5x faster than easy mode (4000)
     bug.animate(
       [
         { transform: 'translateX(0)' },
