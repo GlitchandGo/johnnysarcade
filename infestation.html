@@ -295,6 +295,7 @@
   <script type="module">
     import { startEasyMode } from './infestation-easy.js';
     import { startNormalMode } from './infestation-normal.js';
+    import { startHardMode } from './infestation-hard.js';
 
     // Function to get score from localStorage with fallback
     function getStoredScore(key, fallback = 0) {
@@ -374,11 +375,10 @@
       startNormalMode();
     });
     
-    // Hard mode button (placeholder functionality)
+    // Hard mode button
     document.getElementById('hard').addEventListener('click', () => {
-      alert('Hard mode not implemented yet!');
-      // toScreen('infestation');
-      // startHardMode();
+      toScreen('infestation');
+      startHardMode();
     });
 
     // Back button
@@ -395,4 +395,5 @@
     window.addEventListener('storage', updateScoreDisplays);
   </script>
 </body>
+</html>
 </html>
