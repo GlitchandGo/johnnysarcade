@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Above The Clouds</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 50%, #87CEEB 100%);
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .game-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .menu-screen {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .game-title {
+            font-size: 48px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .medal-icon {
+            font-size: 40px;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+
+        .scores {
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(52, 152, 219, 0.3);
+        }
+
+        .score-item {
+            font-size: 16px;
+            color: #2c3e50;
+            margin: 8px 0;
+            font-weight: bold;
+        }
+
+        .play-btn {
+            font-size: 24px;
+            padding: 15px 40px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: inherit;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .play-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(52, 152, 219, 0.6);
+        }
+
+        .game-screen {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: none;
+        }
+
+        .hud {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 20px;
+            font-weight: bold;
+            z-index: 100;
+        }
+
+        .game-area {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .balloon {
+            position: absolute;
+            font-size: 40px;
+            z-index: 10;
+            transition: left 0.1s ease;
+        }
+
+        .obstacle {
+            position: absolute;
+            font-size: 30px;
+            z-index: 5;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 100;
+        }
+
+        .arrow-btn {
+            width: 80px;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 30px;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            user-select: none;
+        }
+
+        .arrow-btn:active {
+            background: rgba(0, 0, 0, 0.9);
+            transform: scale(0.95);
+        }
+
+        .game-over-screen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: none;
+            z-index: 200;
+        }
+
+        .final-altitude {
+            font-size: 36px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .medal {
+            font-size: 60px;
+            margin: 20px 0;
+        }
+
+        .medal-text {
+            font-size: 24px;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+
+        .game-over-btn {
+            font-size: 18px;
+            padding: 10px 25px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn {
+            background: #27ae60;
+            color: white;
+        }
+
+        .restart-btn:hover {
+            background: #229954;
+        }
+
+        .quit-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .quit-btn:hover {
+            background: #c0392b;
+        }
+
+
+
+        .arcade-btn {
+            background: #9b59b6;
+            color: white;
+        }
+
+        .arcade-btn:hover {
+            background: #8e44ad;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Music -->
+    <audio id="bgMusic" loop autoplay>
+        <source src="abovetheclouds.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="game-container">
+        <!-- Menu Screen -->
+        <div class="menu-screen" id="menuScreen">
+            <div class="game-title">
+                Above The Clouds
+                <span class="medal-icon" id="titleMedal"></span>
+            </div>
+            <div class="subtitle">Navigate your balloon through chaotic skies</div>
+            <div class="scores">
+                <div class="score-item">Last Score: <span id="lastScore">-</span></div>
+                <div class="score-item">Best Score: <span id="bestScore">-</span></div>
+            </div>
+            <button class="play-btn" onclick="startGame()">PLAY</button>
+            <br><br>
+            <button class="game-over-btn arcade-btn" onclick="backToArcade()">BACK TO ARCADE</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div class="game-screen" id="gameScreen">
+            <div class="hud" id="hud">Altitude: 0m</div>
+            <div class="game-area" id="gameArea">
+                <div class="balloon" id="balloon">🎈</div>
+            </div>
+            <div class="controls">
+                <button class="arrow-btn" id="leftBtn">←</button>
+                <button class="arrow-btn" id="rightBtn">→</button>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div class="game-over-screen" id="gameOverScreen">
+            <div class="final-altitude" id="finalAltitude">Final Altitude: 0m</div>
+            <div class="medal" id="medalDisplay">🏃</div>
+            <div class="medal-text" id="medalText">No Medal</div>
+            <div>
+                <button class="game-over-btn restart-btn" onclick="restartGame()">RESTART</button>
+                <button class="game-over-btn quit-btn" onclick="quitGame()">QUIT</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let gameState = {
+            altitude: 0,
+            balloonX: 50, // percentage
+            obstacles: [],
+            gameRunning: false,
+            obstacleSpawnRate: 1500, // Start faster
+            altitudeRate: 5, // meters per second
+            balloonSpeed: 80 // percentage per second
+        };
+
+        const balloon = document.getElementById('balloon');
+        const gameArea = document.getElementById('gameArea');
+        const hud = document.getElementById('hud');
+        const leftBtn = document.getElementById('leftBtn');
+        const rightBtn = document.getElementById('rightBtn');
+
+        const obstacleTypes = ['🔪', '🗡️', '⚡', '🔥'];
+
+        // Medal system
+        const medals = [
+            { altitude: 500, medal: '🏆', text: 'Elite' },
+            { altitude: 400, medal: '🎖', text: 'Honor' },
+            { altitude: 300, medal: '🥇', text: 'Gold' },
+            { altitude: 250, medal: '🥈', text: 'Silver' },
+            { altitude: 200, medal: '🥉', text: 'Bronze' }
+        ];
+
+        function startGame() {
+            document.getElementById('menuScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            document.getElementById('gameOverScreen').style.display = 'none';
+            
+            // Reset game state
+            gameState = {
+                altitude: 0,
+                balloonX: 50,
+                obstacles: [],
+                gameRunning: true,
+                obstacleSpawnRate: 1500,
+                altitudeRate: 5,
+                balloonSpeed: 80
+            };
+            
+            updateBalloonPosition();
+            gameLoop();
+            spawnObstacles();
+        }
+
+        function loadScores() {
+            try {
+                const savedScores = localStorage.getItem('aboveCloudsScores');
+                if (savedScores) {
+                    window.gameScores = JSON.parse(savedScores);
+                } else {
+                    window.gameScores = {
+                        lastScore: 0,
+                        bestScore: 0
+                    };
+                }
+            } catch (e) {
+                // Fallback if localStorage fails
+                window.gameScores = {
+                    lastScore: 0,
+                    bestScore: 0
+                };
+            }
+            
+            document.getElementById('lastScore').textContent = 
+                window.gameScores.lastScore > 0 ? window.gameScores.lastScore + 'm' : '-';
+            document.getElementById('bestScore').textContent = 
+                window.gameScores.bestScore > 0 ? window.gameScores.bestScore + 'm' : '-';
+            
+            // Update medal icon next to title
+            updateTitleMedal();
+        }
+
+        function updateTitleMedal() {
+            const titleMedal = document.getElementById('titleMedal');
+            if (window.gameScores && window.gameScores.bestScore > 0) {
+                let medal = { medal: '🏃' };
+                for (let m of medals) {
+                    if (window.gameScores.bestScore >= m.altitude) {
+                        medal = m;
+                        break;
+                    }
+                }
+                titleMedal.textContent = medal.medal;
+            } else {
+                titleMedal.textContent = '';
+            }
+        }
+
+        function saveScore(score) {
+            if (!window.gameScores) {
+                window.gameScores = { lastScore: 0, bestScore: 0 };
+            }
+            
+            window.gameScores.lastScore = score;
+            if (score > window.gameScores.bestScore) {
+                window.gameScores.bestScore = score;
+            }
+            
+            // Save to localStorage
+            try {
+                localStorage.setItem('aboveCloudsScores', JSON.stringify(window.gameScores));
+            } catch (e) {
+                // localStorage not available or full, continue without saving
+                console.warn('Could not save scores to localStorage');
+            }
+        }
+
+        function backToArcade() {
+            window.location.href = 'index.html';
+        }
+
+        function updateBalloonPosition() {
+            const gameAreaWidth = gameArea.clientWidth;
+            const balloonWidth = 40; // approximate balloon width
+            const leftPosition = (gameState.balloonX / 100) * (gameAreaWidth - balloonWidth);
+            balloon.style.left = leftPosition + 'px';
+            balloon.style.bottom = '150px'; // Fixed position from bottom
+        }
+
+        function spawnObstacle() {
+            if (!gameState.gameRunning) return;
+            
+            // Spawn multiple obstacles for more chaos!
+            const numObstacles = Math.min(1 + Math.floor(gameState.altitude / 200), 4);
+            
+            for (let i = 0; i < numObstacles; i++) {
+                const obstacle = document.createElement('div');
+                obstacle.className = 'obstacle';
+                obstacle.textContent = obstacleTypes[Math.floor(Math.random() * obstacleTypes.length)];
+                obstacle.style.left = Math.random() * (gameArea.clientWidth - 30) + 'px';
+                obstacle.style.top = (-50 - (i * 40)) + 'px'; // Stagger vertically
+                
+                gameArea.appendChild(obstacle);
+                gameState.obstacles.push(obstacle);
+            }
+        }
+
+        function spawnObstacles() {
+            if (!gameState.gameRunning || gameState.gamePaused) return;
+            
+            spawnObstacle();
+            
+            // More gradual difficulty scaling - much slower ramp up
+            const spawnRate = Math.max(200, gameState.obstacleSpawnRate - (gameState.altitude * 2.8));
+            setTimeout(spawnObstacles, spawnRate);
+        }
+
+        function updateObstacles() {
+            gameState.obstacles.forEach((obstacle, index) => {
+                const currentTop = parseInt(obstacle.style.top);
+                obstacle.style.top = (currentTop + 3) + 'px';
+                
+                // Remove obstacles that are off screen
+                if (currentTop > gameArea.clientHeight) {
+                    gameArea.removeChild(obstacle);
+                    gameState.obstacles.splice(index, 1);
+                }
+                
+                // Check collision
+                if (checkCollision(obstacle)) {
+                    gameOver();
+                }
+            });
+        }
+
+        function checkCollision(obstacle) {
+            const balloonRect = balloon.getBoundingClientRect();
+            const obstacleRect = obstacle.getBoundingClientRect();
+            
+            // Larger hitbox for more challenging gameplay
+            const margin = 8;
+            
+            return !(balloonRect.right - margin < obstacleRect.left + margin ||
+                    balloonRect.left + margin > obstacleRect.right - margin ||
+                    balloonRect.bottom - margin < obstacleRect.top + margin ||
+                    balloonRect.top + margin > obstacleRect.bottom - margin);
+        }
+
+        function gameLoop() {
+            if (!gameState.gameRunning) return;
+            
+            // Update altitude (5 meters per second)
+            gameState.altitude += gameState.altitudeRate / 60; // 60 FPS
+            hud.textContent = `Altitude: ${Math.floor(gameState.altitude)}m`;
+            
+            updateObstacles();
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        function gameOver() {
+            gameState.gameRunning = false;
+            
+            // Clear obstacles
+            gameState.obstacles.forEach(obstacle => {
+                if (obstacle.parentNode) {
+                    gameArea.removeChild(obstacle);
+                }
+            });
+            gameState.obstacles = [];
+            
+            // Show game over screen with medal
+            const finalAltitude = Math.floor(gameState.altitude);
+            document.getElementById('finalAltitude').textContent = `Final Altitude: ${finalAltitude}m`;
+            
+            // Save score
+            saveScore(finalAltitude);
+            
+            // Determine medal
+            let medal = { medal: '🏃', text: 'No Medal' };
+            for (let m of medals) {
+                if (finalAltitude >= m.altitude) {
+                    medal = m;
+                    break;
+                }
+            }
+            
+            document.getElementById('medalDisplay').textContent = medal.medal;
+            document.getElementById('medalText').textContent = medal.text;
+            document.getElementById('gameOverScreen').style.display = 'block';
+        }
+
+        function restartGame() {
+            startGame();
+        }
+
+        function quitGame() {
+            document.getElementById('gameScreen').style.display = 'none';
+            document.getElementById('gameOverScreen').style.display = 'none';
+            document.getElementById('menuScreen').style.display = 'block';
+            loadScores(); // Update scores display when returning to menu
+        }
+
+        function pauseGame() {
+            if (!gameState.gameRunning) return;
+            gameState.gamePaused = true;
+            updateMusicToggleButton();
+            document.getElementById('pauseScreen').style.display = 'block';
+        }
+
+        function resumeGame() {
+            gameState.gamePaused = false;
+            document.getElementById('pauseScreen').style.display = 'none';
+        }
+
+        function quitFromPause() {
+            gameState.gameRunning = false;
+            gameState.gamePaused = false;
+            
+            // Clear obstacles
+            gameState.obstacles.forEach(obstacle => {
+                if (obstacle.parentNode) {
+                    gameArea.removeChild(obstacle);
+                }
+            });
+            gameState.obstacles = [];
+            
+            document.getElementById('gameScreen').style.display = 'none';
+            document.getElementById('pauseScreen').style.display = 'none';
+            document.getElementById('menuScreen').style.display = 'block';
+            loadScores();
+        }
+
+        function toggleMusic() {
+            const bgMusic = document.getElementById('bgMusic');
+            const musicToggle = document.getElementById('musicToggle');
+            
+            if (bgMusic.muted) {
+                bgMusic.muted = false;
+                musicToggle.textContent = '🔊 MUTE MUSIC';
+            } else {
+                bgMusic.muted = true;
+                musicToggle.textContent = '🔇 UNMUTE MUSIC';
+            }
+            
+            // Save music preference
+            try {
+                localStorage.setItem('aboveCloudsMusicMuted', bgMusic.muted.toString());
+            } catch (e) {
+                console.log('Could not save music preference');
+            }
+        }
+
+        function updateMusicToggleButton() {
+            const bgMusic = document.getElementById('bgMusic');
+            const musicToggle = document.getElementById('musicToggle');
+            
+            if (bgMusic.muted) {
+                musicToggle.textContent = '🔇 UNMUTE MUSIC';
+            } else {
+                musicToggle.textContent = '🔊 MUTE MUSIC';
+            }
+        }
+
+        // Initialize scores when page loads
+        window.addEventListener('load', () => {
+            loadScores();
+            
+            // Load music preference
+            try {
+                const musicMuted = localStorage.getItem('aboveCloudsMusicMuted');
+                if (musicMuted === 'true') {
+                    document.getElementById('bgMusic').muted = true;
+                }
+            } catch (e) {
+                console.log('Could not load music preference');
+            }
+            
+            // Try to start background music (some browsers require user interaction)
+            const bgMusic = document.getElementById('bgMusic');
+            bgMusic.volume = 0.3; // Set to 30% volume
+            bgMusic.play().catch(e => {
+                // Autoplay blocked, music will start on first user interaction
+                console.log('Autoplay blocked, music will start on user interaction');
+            });
+        });
+
+        // Start music on first user interaction if autoplay was blocked
+document.addEventListener('click', () => {
+    const bgMusic = document.getElementById('bgMusic');
+    if (bgMusic.paused) {
+        bgMusic.play().catch(e => console.log('Could not start music'));
+    }
+}, { once: true });
+
+document.addEventListener('keyup', (e) => {
+    if (e.key === 'ArrowLeft') {
+        leftPressed = false;
+    } else if (e.key === 'ArrowRight') {
+        rightPressed = false;
+    }
+});
+</script>
+</body>
+</html>
