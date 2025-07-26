@@ -13,10 +13,10 @@
 .bug.hard::before {
   content: '';
   position: absolute;
-  top: -15px;
-  left: -15px;
-  right: -15px;
-  bottom: -15px;
+  top: -20px;
+  left: -20px;
+  right: -20px;
+  bottom: -20px;
   cursor: pointer;
 }
 
