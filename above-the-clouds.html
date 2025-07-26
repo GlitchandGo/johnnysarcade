@@ -297,7 +297,7 @@
         // Medal system
         const medals = [
             { altitude: 500, medal: '🏆', text: 'Elite' },
-            { altitude: 400, medal: '🎖', text: 'Honor' },
+            { altitude: 400, medal: '🏅', text: 'Honor' },
             { altitude: 300, medal: '🥇', text: 'Gold' },
             { altitude: 250, medal: '🥈', text: 'Silver' },
             { altitude: 200, medal: '🥉', text: 'Bronze' }
@@ -597,13 +597,99 @@
             });
         });
 
-        // Start music on first user interaction if autoplay was blocked
+// Start music on first user interaction if autoplay was blocked
 document.addEventListener('click', () => {
     const bgMusic = document.getElementById('bgMusic');
     if (bgMusic.paused) {
         bgMusic.play().catch(e => console.log('Could not start music'));
     }
 }, { once: true });
+
+// Control handlers
+let leftPressed = false;
+let rightPressed = false;
+
+leftBtn.addEventListener('mousedown', () => {
+    leftPressed = true;
+    moveBalloon();
+});
+
+leftBtn.addEventListener('mouseup', () => {
+    leftPressed = false;
+});
+
+leftBtn.addEventListener('mouseleave', () => {
+    leftPressed = false;
+});
+
+rightBtn.addEventListener('mousedown', () => {
+    rightPressed = true;
+    moveBalloon();
+});
+
+rightBtn.addEventListener('mouseup', () => {
+    rightPressed = false;
+});
+
+rightBtn.addEventListener('mouseleave', () => {
+    rightPressed = false;
+});
+
+// Touch support
+leftBtn.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    leftPressed = true;
+    moveBalloon();
+});
+
+leftBtn.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    leftPressed = false;
+});
+
+rightBtn.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    rightPressed = true;
+    moveBalloon();
+});
+
+rightBtn.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    rightPressed = false;
+});
+
+function moveBalloon() {
+    if (!gameState.gameRunning) return;
+    
+    if (leftPressed && gameState.balloonX > 0) {
+        gameState.balloonX -= gameState.balloonSpeed / 60; // 60 FPS
+        if (gameState.balloonX < 0) gameState.balloonX = 0;
+        updateBalloonPosition();
+    }
+    
+    if (rightPressed && gameState.balloonX < 100) {
+        gameState.balloonX += gameState.balloonSpeed / 60; // 60 FPS
+        if (gameState.balloonX > 100) gameState.balloonX = 100;
+        updateBalloonPosition();
+    }
+    
+    if (leftPressed || rightPressed) {
+        requestAnimationFrame(moveBalloon);
+    }
+}
+
+// Keyboard support (optional)
+document.addEventListener('keydown', (e) => {
+    if (!gameState.gameRunning) return;
+    
+    if (e.key === 'ArrowLeft' && !leftPressed) {
+        leftPressed = true;
+        moveBalloon();
+    } else if (e.key === 'ArrowRight' && !rightPressed) {
+        rightPressed = true;
+        moveBalloon();
+    }
+});
 
 document.addEventListener('keyup', (e) => {
     if (e.key === 'ArrowLeft') {
@@ -612,6 +698,6 @@ document.addEventListener('keyup', (e) => {
         rightPressed = false;
     }
 });
-</script>
+    </script>
 </body>
 </html>
