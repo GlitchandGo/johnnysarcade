@@ -15,6 +15,18 @@
             min-height: 100vh;
         }
 
+        .rainbow-bg {
+            background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+            background-size: 400% 400%;
+            animation: rainbow 3s ease infinite;
+        }
+
+        @keyframes rainbow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         .title {
             font-size: 2.5rem;
             font-weight: bold;
@@ -102,6 +114,23 @@
             min-height: 30px;
         }
 
+        .back-button {
+            background-color: #666;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+            transition: transform 0.1s ease;
+            margin-top: 15px;
+        }
+
+        .back-button:hover {
+            transform: translateY(-1px);
+            background-color: #555;
+        }
         .hidden {
             display: none;
         }
@@ -125,6 +154,8 @@
     </div>
     
     <button class="start-button" id="start-button">Start Game</button>
+    
+    <button class="back-button" id="back-button" onclick="window.location.href='index.html'">Back to Arcade</button>
     
     <div class="game-message" id="game-message"></div>
 
@@ -156,7 +187,8 @@
                     0: '#4CAF50',   // Green
                     5: '#FFD700',   // Yellow
                     10: '#4169E1',  // Blue
-                    15: '#DC143C'   // Red
+                    15: '#DC143C',  // Red
+                    20: 'rainbow'   // Rainbow
                 };
                 
                 this.medals = {
@@ -178,6 +210,7 @@
                 this.bestScoreEl = document.getElementById('best-score');
                 this.gameButtonsEl = document.getElementById('game-buttons');
                 this.startButtonEl = document.getElementById('start-button');
+                this.backButtonEl = document.getElementById('back-button');
                 this.gameMessageEl = document.getElementById('game-message');
                 this.colorButtons = document.querySelectorAll('.color-button');
             }
@@ -221,13 +254,19 @@
                 
                 // Update background color based on score
                 let bgColor = this.backgroundColors[0];
-                for (let threshold of [15, 10, 5, 0]) {
+                for (let threshold of [20, 15, 10, 5, 0]) {
                     if (this.currentScore >= threshold) {
                         bgColor = this.backgroundColors[threshold];
                         break;
                     }
                 }
-                document.body.style.backgroundColor = bgColor;
+                
+                if (bgColor === 'rainbow') {
+                    document.body.className = 'rainbow-bg';
+                } else {
+                    document.body.className = '';
+                    document.body.style.backgroundColor = bgColor;
+                }
             }
             
             startGame() {
@@ -237,6 +276,7 @@
                 this.isPlaying = true;
                 
                 this.startButtonEl.classList.add('hidden');
+                this.backButtonEl.classList.add('hidden');
                 this.gameButtonsEl.classList.remove('hidden');
                 this.gameMessageEl.textContent = '';
                 
@@ -260,7 +300,7 @@
             
             async playSequence() {
                 for (let i = 0; i < this.sequence.length; i++) {
-                    await this.wait(200); // 0.2 second pause
+                    await this.wait(750); // 0.75 second pause
                     this.playAudio(this.sequence[i]);
                 }
                 
@@ -322,6 +362,7 @@
                 this.gameMessageEl.textContent = `Game Over! Final Score: ${this.currentScore}`;
                 this.gameButtonsEl.classList.add('hidden');
                 this.startButtonEl.classList.remove('hidden');
+                this.backButtonEl.classList.remove('hidden');
                 this.startButtonEl.textContent = 'Play Again';
             }
         }
